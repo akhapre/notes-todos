@@ -38,11 +38,29 @@ func main() {
 		return
 	}
 
-	outputData(note)
-	outputData(todo)
+	err = outputData(note)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
+	err = outputData(todo)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 }
 
+// Any value allowed
+func getType(data interface{}) string {
+	switch data.(type) {
+	case notes.Note:
+		return "Note"
+	default:
+		return "Todo"
+
+	}
+}
 func getNoteData() (string, string) {
 	title := getUserInput("Note title:")
 	content := getUserInput("Note content:")
@@ -65,9 +83,9 @@ func getUserInput(prompt string) string {
 	value = strings.TrimSuffix(value, "\r")
 	return value
 }
-func outputData(data outputtable) {
+func outputData(data outputtable) error {
 	display(data)
-	save(data)
+	return save(data)
 
 }
 func display(data displayer) {
@@ -77,9 +95,9 @@ func display(data displayer) {
 func save(data saver) error {
 	err := data.Save()
 	if err != nil {
-		fmt.Print("Error while saving todo : ", err)
+		fmt.Print("Error while saving ", getType(data), " : ", err)
 		return err
 	}
-	fmt.Print("Saved todo.")
+	fmt.Print("Saved ", getType(data), ".")
 	return nil
 }
